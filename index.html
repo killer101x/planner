@@ -65,6 +65,8 @@ tr.cur td{background:var(--accent-soft);font-weight:600}
 <main id="view"></main>
 <footer class="small" style="margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--line);max-width:75ch"><p>This planner follows the garbh sanskar tradition (music, mantra, calm focused activity, a sattvic diet) and pairs it with current US prenatal guidance from ACOG, CDC and AAP. It is a daily routine, not medical advice: keep every OB appointment, take the prenatal vitamin as prescribed, and clear the exercise routine with your OB. Stop any activity and call the OB for bleeding, fluid leaking, regular contractions, severe headache, vision changes, chest pain, calf pain, or reduced baby movement.</p></footer>
 </div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const yt=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
@@ -90,13 +92,22 @@ const YOGA=[['Weeks 1 to 13','Gentle stretches, cat-cow, deep breathing (about 1
 const STOP=['Bleeding or fluid leaking','Dizziness, chest pain or shortness of breath','Regular contractions or reduced baby movement'];
 const LEARN=[['Birth classes','Book through your hospital by week 28.'],['Breastfeeding basics','One session, plus the lactation helpline number saved.'],['Newborn care','Bathing, sleep, car seat check by week 36.'],['Labour signs','Know when to call the OB and when to leave for the hospital.']];
 
-const TABS=[['today','Today'],['weeks','Weeks'],['music','Music'],['diet','Diet'],['acts','Activities'],['yoga','Yoga & walks'],['learn','Learning']];
+const TABS=[['today','Today'],['weeks','Weeks'],['hist','History'],['music','Music'],['diet','Diet'],['acts','Activities'],['yoga','Yoga & walks'],['learn','Learning']];
 let tab=store.get('gs_tab')||'today';
 let due=store.get('gs_due');
 if(!due)due='2027-03-27';
 const DAY=864e5;
 const info=()=>{const dd=new Date(due+'T00:00:00'),now=new Date();now.setHours(0,0,0,0);const left=Math.round((dd-now)/DAY);const dayNo=Math.min(280,Math.max(1,280-left));const w=Math.min(40,Math.max(1,Math.floor(dayNo/7)));return{left,dayNo,w,ph:PH.find(p=>w<=p.to)}};
-const checks=()=>{try{return JSON.parse(store.get('gs_done_'+new Date().toDateString())||'{}')}catch(e){return{}}};
+/* ===== SETUP: paste your Firebase values here, and choose your own private family code ===== */
+const FB_CONFIG={apiKey:"AIzaSyB2UYM_6W8swk9HYR_14ffyJ8uc4sH7KVM",authDomain:"planner-1b045.firebaseapp.com",projectId:"planner-1b045",appId:"1:146943241180:web:96efc27b7dfdfae00dbd19"};
+const FAMILY_CODE="lotus-fea010f64611-kite";
+const dkey=d=>{d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let DONE={},col=null,sync='This phone only';
+try{DONE=JSON.parse(store.get('gs_all')||'{}')}catch(e){}
+const checks=()=>DONE[dkey()]||{};
+const saveLocal=()=>store.set('gs_all',JSON.stringify(DONE));
+function setCheck(k,v){const d=dkey();DONE[d]=Object.assign({},DONE[d],{[k]:v});saveLocal();if(col)col.doc(d).set({c:{[k]:v}},{merge:true}).catch(()=>{sync='Not syncing';render()});render()}
+try{if(window.firebase&&FB_CONFIG.projectId){firebase.initializeApp(FB_CONFIG);col=firebase.firestore().collection('planners').doc(FAMILY_CODE).collection('days');sync='Syncing\u2026';col.onSnapshot(q=>{q.forEach(x=>{DONE[x.id]=x.data().c||{}});saveLocal();sync='Synced';render()},()=>{sync='Not syncing';render()})}}catch(e){sync='Not syncing'}
 
 function hero(){const i=info(),s=sizeFor(i.w);
  document.getElementById('hero').innerHTML='<div class="hero"><div class="stat"><div class="n">Week '+i.w+'</div><div class="l">of 40</div></div><div class="stat"><div class="n">'+Math.max(0,i.left)+'</div><div class="l">days to go</div></div><div class="stat"><div class="n">'+esc(s[1])+'</div><div class="l">baby is about this size</div></div></div><div class="bar" title="Progress"><i style="width:'+Math.round(i.dayNo/280*100)+'%"></i></div>';}
@@ -108,9 +119,12 @@ function render(){
  const i=info(),s=sizeFor(i.w),m=MUSIC[i.ph.k],wd=(new Date().getDay()+6)%7;let h='';
  if(tab==='today'){
   const done=checks();
-  h='<div class="card accent"><div class="eyebrow">This week</div><h3>Week '+i.w+': '+esc(s[1])+' ('+esc(s[2])+')</h3><p class="small">'+esc(s[3])+'</p><p class="small" style="margin-top:.4rem">'+esc(i.ph.months)+' · '+esc(i.ph.name)+'</p><p class="small" style="margin-top:.4rem">'+esc(i.ph.baby)+'</p></div><h2 style="margin:1.2rem 0 .7rem">Today\u2019s ledger</h2><div class="ledger">'+SLOTS.map((x,k)=>'<div class="time">'+x[0]+'</div><div class="block'+(done[k]?' done':'')+'"><label><input type="checkbox" data-k="'+k+'"'+(done[k]?' checked':'')+'><span><b>'+esc(x[1])+'</b><br><span class="small">'+x[2].map(esc).join(' · ')+'</span></span></label></div>').join('')+'</div><div class="card sky" style="margin-top:.5rem"><div class="eyebrow">'+esc(ACTS[wd][0])+'\u2019s activity</div><h3>'+esc(ACTS[wd][1])+'</h3><p class="small">'+esc(ACTS[wd][2])+'</p></div>';
+  h='<div class="card accent"><div class="eyebrow">This week \u00b7 '+esc(sync)+'</div><h3>Week '+i.w+': '+esc(s[1])+' ('+esc(s[2])+')</h3><p class="small">'+esc(s[3])+'</p><p class="small" style="margin-top:.4rem">'+esc(i.ph.months)+' · '+esc(i.ph.name)+'</p><p class="small" style="margin-top:.4rem">'+esc(i.ph.baby)+'</p></div><h2 style="margin:1.2rem 0 .7rem">Today\u2019s ledger</h2><div class="ledger">'+SLOTS.map((x,k)=>'<div class="time">'+x[0]+'</div><div class="block'+(done[k]?' done':'')+'"><label><input type="checkbox" data-k="'+k+'"'+(done[k]?' checked':'')+'><span><b>'+esc(x[1])+'</b><br><span class="small">'+x[2].map(esc).join(' · ')+'</span></span></label></div>').join('')+'</div><div class="card sky" style="margin-top:.5rem"><div class="eyebrow">'+esc(ACTS[wd][0])+'\u2019s activity</div><h3>'+esc(ACTS[wd][1])+'</h3><p class="small">'+esc(ACTS[wd][2])+'</p></div>';
  }else if(tab==='weeks'){
   h='<h2>Week by week</h2><p class="small">Weeks 19 to 40. The current week is highlighted.</p><div class="stack" style="margin-top:1rem">'+Array.from({length:22},(_,k)=>19+k).map(w=>{const z=sizeFor(w),a=new Date(new Date(due+'T12:00:00').getTime()-(280-w*7)*DAY),b=new Date(a.getTime()+6*DAY),f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});return '<div class="card'+(w===i.w?' accent':'')+'"><p class="eyebrow">Week '+w+' · '+f(a)+' to '+f(b)+'</p><h3>'+esc(z[1])+' · '+esc(z[2])+'</h3><p class="small">'+esc(z[3])+'</p></div>'}).join('')+'</div>';
+ }else if(tab==='hist'){
+  const days=Object.keys(DONE).sort().reverse();
+  h='<h2>History</h2><p class="small">Every day with ticks, newest first. '+esc(sync)+'.</p><div class="stack" style="margin-top:1rem">'+(days.map(d=>{const n=Object.values(DONE[d]).filter(Boolean).length;return '<div class="card"><p class="eyebrow">'+d+'</p><h3>'+n+' of '+SLOTS.length+' done</h3><div class="bar"><i style="width:'+Math.round(n/SLOTS.length*100)+'%"></i></div><p class="small">'+SLOTS.filter((x,k)=>DONE[d][k]).map(x=>esc(x[1])).join(', ')+'</p></div>'}).join('')||'<p class="small">Nothing yet. Tick something on the Today tab.</p>')+'</div>';
  }else if(tab==='music'){
   h='<div class="section"><h2>Music, morning and evening</h2><p class="small">'+esc(i.ph.months)+' · '+esc(i.ph.name)+'. '+esc(i.ph.music)+'</p></div><div class="grid2" style="margin-top:1rem"><div class="card"><h3>Morning</h3>'+musicList(m.morning)+'</div><div class="card"><h3>Evening</h3>'+musicList(m.evening)+'</div></div>';
  }else if(tab==='diet'){
@@ -123,7 +137,7 @@ function render(){
   h='<h2>Knowledge sessions</h2><p class="small">One topic a week, ordered by when each becomes useful.</p><div class="stack" style="margin-top:1rem">'+LEARN.map(l=>'<div class="card"><h3>'+esc(l[0])+'</h3><p class="small">'+esc(l[1])+'</p></div>').join('')+'</div><div class="tablewrap card" style="margin-top:1rem"><h3>Baby size by week</h3><table><thead><tr><th>Week</th><th>Size</th><th>Note</th></tr></thead><tbody>'+SIZES.map(z=>'<tr'+(z[0]===s[0]?' class="cur"':'')+'><td>'+z[0]+'</td><td>'+esc(z[1])+' \u00b7 '+esc(z[2])+'</td><td>'+esc(z[3])+'</td></tr>').join('')+'</tbody></table></div>';
  }
  document.getElementById('view').innerHTML=h;
- document.querySelectorAll('input[data-k]').forEach(c=>c.onchange=()=>{const d=checks();d[c.dataset.k]=c.checked;store.set('gs_done_'+new Date().toDateString(),JSON.stringify(d));render()});
+ document.querySelectorAll('input[data-k]').forEach(c=>c.onchange=()=>setCheck(c.dataset.k,c.checked));
 }
 function tabs(){const n=document.getElementById('tabs');n.innerHTML=TABS.map(t=>'<button role="tab" aria-selected="'+(t[0]===tab)+'" data-t="'+t[0]+'">'+t[1]+'</button>').join('');n.querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;store.set('gs_tab',tab);tabs();render()})}
 const di=document.getElementById('due');di.value=due;di.onchange=()=>{if(di.value){due=di.value;store.set('gs_due',due);hero();render()}};
