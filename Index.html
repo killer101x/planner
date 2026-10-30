@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Garbh Sanskar Planner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Martel:wght@600;700&family=Mukta:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#F3F6F0;--surface:#FFFFFF;--surface-2:#E9EFE7;--ink:#1E3A36;--muted:#5C716C;--line:#D3DDD3;--accent:#D28F18;--accent-soft:#FBEFD6;--accent-ink:#7A5208;--rose:#B9566E;--rose-soft:#F7E3E8;--leaf:#3F7D5E;--leaf-soft:#DFF0E5;--sky:#3C6E9E;--sky-soft:#E0EBF5;--done:#2F7D5E;--shadow:0 1px 2px rgba(30,58,54,.08),0 8px 24px -16px rgba(30,58,54,.25);--display:"Martel",Georgia,"Times New Roman",serif;--body:"Mukta","Segoe UI",system-ui,-apple-system,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10201D;--surface:#182B27;--surface-2:#1F3530;--ink:#E8EFEA;--muted:#9FB3AC;--line:#2C453F;--accent:#F0B445;--accent-soft:#3A2A12;--accent-ink:#F7D58C;--rose:#E58BA0;--rose-soft:#3C2229;--leaf:#7FC39B;--leaf-soft:#1E3A2C;--sky:#8AB8E3;--sky-soft:#1D2F3F;--done:#7FC39B;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -16px rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10201D;--surface:#182B27;--surface-2:#1F3530;--ink:#E8EFEA;--muted:#9FB3AC;--line:#2C453F;--accent:#F0B445;--accent-soft:#3A2A12;--accent-ink:#F7D58C;--rose:#E58BA0;--rose-soft:#3C2229;--leaf:#7FC39B;--leaf-soft:#1E3A2C;--sky:#8AB8E3;--sky-soft:#1D2F3F;--done:#7FC39B;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -16px rgba(0,0,0,.6);color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:var(--sky);text-decoration-thickness:1px;text-underline-offset:2px}
+h1,h2,h3{font-family:var(--display);line-height:1.2;margin:0;text-wrap:balance}
+h1{font-size:1.65rem}h2{font-size:1.3rem}h3{font-size:1.05rem}
+p{margin:0}ul{margin:0;padding-left:1.15rem}li{margin:.15rem 0}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:860px;margin:0 auto;padding:1.2rem 1rem 3rem}
+header{display:flex;flex-wrap:wrap;gap:.8rem;align-items:flex-end;justify-content:space-between;margin-bottom:1rem}
+.sub{color:var(--muted);font-size:.95rem}
+.due{display:flex;gap:.5rem;align-items:center;font-size:.9rem;color:var(--muted)}
+input[type=date]{font:inherit;padding:.3rem .5rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin-bottom:1rem}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem 1rem;box-shadow:var(--shadow)}
+.stat .n{font-family:var(--display);font-size:1.6rem;font-weight:700}
+.stat .l{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin:.5rem 0 1.2rem}
+.bar i{display:block;height:100%;background:var(--leaf)}
+nav{display:flex;gap:.3rem;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:1.1rem}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:.6rem .8rem;white-space:nowrap;color:var(--muted);font-weight:600}
+nav button[aria-selected=true]{color:var(--ink);border-color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;box-shadow:var(--shadow)}
+.card.accent{background:var(--accent-soft);border-color:var(--accent)}
+.card.leaf{background:var(--leaf-soft)}.card.sky{background:var(--sky-soft)}.card.rose{background:var(--rose-soft)}
+.stack{display:grid;gap:.8rem}.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.8rem}
+.eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:.2rem}
+.small{font-size:.92rem;color:var(--muted)}
+.ledger{display:grid;grid-template-columns:78px 1fr;gap:0 .8rem}
+.time{font-family:var(--display);font-weight:700;font-size:.9rem;color:var(--accent-ink);text-align:right;padding-top:.15rem;border-right:2px solid var(--line);padding-right:.7rem}
+.block{padding:0 0 .9rem}
+.block label{display:flex;gap:.5rem;align-items:flex-start;cursor:pointer}
+.block input{margin-top:.35rem;accent-color:var(--done)}
+.block.done b{text-decoration:line-through;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:.4rem .6rem;border-bottom:1px solid var(--line)}
+tr.cur td{background:var(--accent-soft);font-weight:600}
+.chip{display:inline-block;background:var(--surface-2);border-radius:99px;padding:.1rem .6rem;font-size:.8rem;margin:.1rem .2rem .1rem 0}
+.links a{margin-right:.8rem;font-size:.9rem}
+.theme{background:none;border:1px solid var(--line);border-radius:8px;padding:.25rem .6rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><p class="eyebrow">Daily plan · weeks 19 to 40</p><h1>Garbh Sanskar Planner</h1><p class="sub">Music, meals, movement, mind and learning for each day until the baby arrives. Open it every morning; the Today tab shows exactly what to do.</p></div>
+  <div class="due"><label for="due">Due date</label><input type="date" id="due"><span class="small">Change it if your OB updates the date.</span><button class="theme" id="theme" aria-label="Toggle theme">Theme</button></div>
+</header>
+<div id="hero"></div>
+<nav id="tabs" role="tablist"></nav>
+<main id="view"></main>
+<footer class="small" style="margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--line);max-width:75ch"><p>This planner follows the garbh sanskar tradition (music, mantra, calm focused activity, a sattvic diet) and pairs it with current US prenatal guidance from ACOG, CDC and AAP. It is a daily routine, not medical advice: keep every OB appointment, take the prenatal vitamin as prescribed, and clear the exercise routine with your OB. Stop any activity and call the OB for bleeding, fluid leaking, regular contractions, severe headache, vision changes, chest pain, calf pain, or reduced baby movement.</p></footer>
+</div>
+<script>
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yt=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+const sp=q=>'https://open.spotify.com/search/'+encodeURIComponent(q);
+const T=(name,why,q)=>({name,why,q:q||name});
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* weekly sizes: [week, fruit, length/weight, note] shown from that week until the next entry */
+const SIZES=[[4,'poppy seed','1 mm','Implantation done; the neural tube is forming.'],[8,'raspberry','1.6 cm · 1 g','Fingers and toes are taking shape.'],[12,'lime','5.4 cm · 14 g','Reflexes begin; the first trimester ends.'],[16,'avocado','11.6 cm · 100 g','Hearing begins to develop.'],[20,'banana','25 cm · 300 g','Halfway. Baby is starting to react to sound.'],[24,'corn','30 cm · 600 g','Hearing is developing; voices are recognised.'],[28,'eggplant','37 cm · 1 kg','Eyes open; the brain grows fast.'],[32,'squash','42 cm · 1.7 kg','Baby practises breathing and sleeps in cycles.'],[36,'papaya','47 cm · 2.6 kg','Hearing is close to a newborn\u2019s; lungs mature.'],[37,'winter melon','48 cm · 2.9 kg','Early term. Baby practises grasping and can tell tones of voice apart.'],[38,'small pumpkin','49 cm · 3.1 kg','Full term next week; organs are ready.'],[39,'small watermelon','50 cm · 3.3 kg','Full term. The brain is still growing fast.'],[40,'watermelon','51 cm · 3.4 kg','Due week. Only about 5% of babies arrive on the due date.']];
+const sizeFor=w=>{let r=SIZES[0];for(const s of SIZES)if(s[0]<=w)r=s;return r};
+
+/* three music phases */
+const PH=[{id:'P1',k:'P1',to:22,name:'Hearing awakens',months:'Month 5 (Chetana)',baby:'The inner ear is forming and the brain is marking out its hearing, taste, smell, touch and vision areas. You start to feel the first flutters.',music:'Low, steady sounds: slow ragas and Om chanting. Baby cannot yet hear music as music, but the rhythm and your calm reach it.'},{id:'P2',k:'P2',to:27,name:'Voice recognition',months:'Month 6',baby:'Baby begins to recognise your voice. Lungs, taste buds and sleep cycles are developing.',music:'Keep the slow ragas and add rhythm and repetition: Mozart K.448, Gayatri mantra (108), Ragas Durga and Hamsadhwani. Start one anchor lullaby that you sing every single evening from now until birth.'},{id:'P3',k:'P3',to:31,name:'Brain growth spurt',months:'Month 7',baby:'The brain forms its folds and grows fastest now; REM sleep appears. From week 28 baby responds consistently to sound and begins to store sound memories. Kick counts begin.',music:'Fix an anchor set of three tracks for the evening session and play the same three in the same order every night. Morning: Ahir Bhairav or a devotional piece your family uses. Night raga: Bageshri.'},{id:'P4',k:'P3',to:35,name:'Pitch and recognition',months:'Month 8',baby:'Baby can tell pitch and rhythm apart and turns toward familiar sounds. Weight gain is fast; lungs are nearly mature. Many babies settle head-down.',music:'Same anchor set every evening. Add the father’s voice: low male voices travel into the womb especially well, so he reads or sings 5 minutes a night. Keep volume at conversation level.'},{id:'P5',k:'P3',to:99,name:'Ready for birth',months:'Month 9',baby:'Hearing is close to a newborn’s; baby can tell calm speech from tense speech. From 37 weeks the baby is early term; 39 to 40 is full term.',music:'Raga Jaunpuri late morning (the traditional month-9 raga for courage), Om chanting, and your anchor lullaby, which becomes the song that settles the newborn. Add 10 minutes of Yoga Nidra for labor.'}];
+const MUSIC={
+P1:{morning:[T('Raga Ahir Bhairav on bansuri','Morning raga; slow, low, grounding. Hariprasad Chaurasia\u2019s recordings are the standard.'),T('Raga Bhairavi on santoor','Shivkumar Sharma\u2019s santoor sits in the low-mid register.'),T('Om chanting, 20 minutes','Steady low hum; you chant along so baby hears it through your body.')],evening:[T('Raga Yaman on bansuri','The garbh sanskar staple; an evening raga for calm and surrender.'),T('Raga Bhoopali','Pentatonic evening raga; gentle on flute or sitar.'),T('Mozart K.448, second movement (Andante)','Slow, predictable phrasing.')]},
+P2:{morning:[T('Raga Durga or Hamsadhwani','Bright, uplifting ragas.'),T('Gayatri Mantra, 108 times','About 20 minutes; repetition and rhythm.'),T('Carnatic veena, Raga Mohanam','The veena\u2019s low resonance.')],evening:[T('Raga Yaman on bansuri','Keep this as the anchor across all phases.'),T('Mozart K.448, complete','One full sonata fills the session.'),T('Balaji Tambe, Garbh Sanskar album','Mantras, shlokas and instrumentals written for pregnancy.')]},
+P3:{morning:[T('Raga Ahir Bhairav on bansuri','Same morning raga as before; familiarity now matters more than variety.'),T('Vishnu Sahasranamam or Hanuman Chalisa','If your family recites these, make them daily.')],evening:[T('Raga Yaman on bansuri','Evening anchor.'),T('Lullabies you will sing after birth','Sing the same ones now so they sound familiar later.')]}};
+
+const SLOTS=[['6:30','Early morning',['Soaked almonds and walnuts','Warm water or jeera water']],['7:45','Breakfast',['Moong dal chilla or vegetable poha','Seasonal fruit, 1 glass milk']],['10:00','Mid-morning',['Coconut water or buttermilk','A handful of dates or nuts']],['12:30','Lunch',['Roti, dal, a green vegetable, curd, salad','A spoon of ghee']],['3:30','Evening snack',['Roasted makhana or sprouts chaat','Fruit or ragi porridge']],['7:00','Dinner',['Light khichdi or roti with a vegetable','Warm turmeric milk at bedtime']],['9:00','Bedtime',['Evening music, 10 minutes of Garbh Samvad','Gratitude note, lights out']]];
+const AVOID=['Raw or half-ripe papaya and large amounts of pineapple','Raw sprouts and raw eggs; unpasteurised milk and cheese','More than 200 mg caffeine a day','Alcohol and smoking','Herbal supplements you have not cleared with your OB'];
+const ACTS=[['Monday','Logic and numbers','Sudoku or chess for 20 minutes, then one tricky puzzle.'],['Tuesday','Read aloud','Read a few pages of a children\u2019s book aloud to baby.'],['Wednesday','Colour and pattern','Colour a mandala or draw a rangoli.'],['Thursday','Stories and memory','Tell baby a family story; look through old photos.'],['Friday','Craft','Knit, crochet or fold paper for the baby.'],['Saturday','Music together','Sing along to a favourite raga with your partner.'],['Sunday','Rest and reflect','Write a letter to baby; light walk only.']];
+const YOGA=[['Weeks 1 to 13','Gentle stretches, cat-cow, deep breathing (about 10 min)'],['Weeks 14 to 27','Butterfly pose, side stretches, supported squats (about 20 min)'],['Weeks 28 to 40','Slow pelvic tilts, birth-ball circles, breathing for labour (about 25 min)']];
+const STOP=['Bleeding or fluid leaking','Dizziness, chest pain or shortness of breath','Regular contractions or reduced baby movement'];
+const LEARN=[['Birth classes','Book through your hospital by week 28.'],['Breastfeeding basics','One session, plus the lactation helpline number saved.'],['Newborn care','Bathing, sleep, car seat check by week 36.'],['Labour signs','Know when to call the OB and when to leave for the hospital.']];
+
+const TABS=[['today','Today'],['weeks','Weeks'],['music','Music'],['diet','Diet'],['acts','Activities'],['yoga','Yoga & walks'],['learn','Learning']];
+let tab=store.get('gs_tab')||'today';
+let due=store.get('gs_due');
+if(!due)due='2027-03-27';
+const DAY=864e5;
+const info=()=>{const dd=new Date(due+'T00:00:00'),now=new Date();now.setHours(0,0,0,0);const left=Math.round((dd-now)/DAY);const dayNo=Math.min(280,Math.max(1,280-left));const w=Math.min(40,Math.max(1,Math.floor(dayNo/7)));return{left,dayNo,w,ph:PH.find(p=>w<=p.to)}};
+const checks=()=>{try{return JSON.parse(store.get('gs_done_'+new Date().toDateString())||'{}')}catch(e){return{}}};
+
+function hero(){const i=info(),s=sizeFor(i.w);
+ document.getElementById('hero').innerHTML='<div class="hero"><div class="stat"><div class="n">Week '+i.w+'</div><div class="l">of 40</div></div><div class="stat"><div class="n">'+Math.max(0,i.left)+'</div><div class="l">days to go</div></div><div class="stat"><div class="n">'+esc(s[1])+'</div><div class="l">baby is about this size</div></div></div><div class="bar" title="Progress"><i style="width:'+Math.round(i.dayNo/280*100)+'%"></i></div>';}
+
+const links=q=>'<div class="links"><a href="'+yt(q)+'" target="_blank" rel="noopener">YouTube</a><a href="'+sp(q)+'" target="_blank" rel="noopener">Spotify</a></div>';
+const musicList=a=>'<ul class="small">'+a.map(t=>'<li><b>'+esc(t.name)+'</b>: '+esc(t.why)+' '+links(t.q).replace(/<\/?div[^>]*>/g,'')+'</li>').join('')+'</ul>';
+
+function render(){
+ const i=info(),s=sizeFor(i.w),m=MUSIC[i.ph.k],wd=(new Date().getDay()+6)%7;let h='';
+ if(tab==='today'){
+  const done=checks();
+  h='<div class="card accent"><div class="eyebrow">This week</div><h3>Week '+i.w+': '+esc(s[1])+' ('+esc(s[2])+')</h3><p class="small">'+esc(s[3])+'</p><p class="small" style="margin-top:.4rem">'+esc(i.ph.months)+' · '+esc(i.ph.name)+'</p><p class="small" style="margin-top:.4rem">'+esc(i.ph.baby)+'</p></div><h2 style="margin:1.2rem 0 .7rem">Today\u2019s ledger</h2><div class="ledger">'+SLOTS.map((x,k)=>'<div class="time">'+x[0]+'</div><div class="block'+(done[k]?' done':'')+'"><label><input type="checkbox" data-k="'+k+'"'+(done[k]?' checked':'')+'><span><b>'+esc(x[1])+'</b><br><span class="small">'+x[2].map(esc).join(' · ')+'</span></span></label></div>').join('')+'</div><div class="card sky" style="margin-top:.5rem"><div class="eyebrow">'+esc(ACTS[wd][0])+'\u2019s activity</div><h3>'+esc(ACTS[wd][1])+'</h3><p class="small">'+esc(ACTS[wd][2])+'</p></div>';
+ }else if(tab==='weeks'){
+  h='<h2>Week by week</h2><p class="small">Weeks 19 to 40. The current week is highlighted.</p><div class="stack" style="margin-top:1rem">'+Array.from({length:22},(_,k)=>19+k).map(w=>{const z=sizeFor(w),a=new Date(new Date(due+'T12:00:00').getTime()-(280-w*7)*DAY),b=new Date(a.getTime()+6*DAY),f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});return '<div class="card'+(w===i.w?' accent':'')+'"><p class="eyebrow">Week '+w+' · '+f(a)+' to '+f(b)+'</p><h3>'+esc(z[1])+' · '+esc(z[2])+'</h3><p class="small">'+esc(z[3])+'</p></div>'}).join('')+'</div>';
+ }else if(tab==='music'){
+  h='<div class="section"><h2>Music, morning and evening</h2><p class="small">'+esc(i.ph.months)+' · '+esc(i.ph.name)+'. '+esc(i.ph.music)+'</p></div><div class="grid2" style="margin-top:1rem"><div class="card"><h3>Morning</h3>'+musicList(m.morning)+'</div><div class="card"><h3>Evening</h3>'+musicList(m.evening)+'</div></div>';
+ }else if(tab==='diet'){
+  h='<h2>Eating through the day</h2><div class="grid2" style="margin-top:1rem"><div class="card leaf"><h3>Daily slots</h3><ul class="small">'+SLOTS.map(x=>'<li><b>'+x[0]+' '+esc(x[1])+':</b> '+x[2].map(esc).join(', ')+'</li>').join('')+'</ul></div><div class="card rose"><h3>Avoid or check first</h3><ul class="small">'+AVOID.map(a=>'<li>'+esc(a)+'</li>').join('')+'</ul></div></div>';
+ }else if(tab==='acts'){
+  h='<h2>Weekly activities</h2><div class="stack" style="margin-top:1rem">'+ACTS.map((a,k)=>'<div class="card'+(k===wd?' accent':'')+'"><p class="eyebrow">'+esc(a[0])+(k===wd?' \u00b7 today':'')+'</p><h3>'+esc(a[1])+'</h3><p class="small">'+esc(a[2])+'</p></div>').join('')+'</div>';
+ }else if(tab==='yoga'){
+  h='<h2>Prenatal yoga and walking</h2><p class="small">About 25 minutes of yoga after breakfast, six days a week, plus two walks. Rest day: Sunday, walks only.</p><div class="stack" style="margin-top:1rem">'+YOGA.map((y,k)=>'<div class="card'+(i.w<=[13,27,40][k]&&(k===0||i.w>[13,27][k-1])?' accent':'')+'"><p class="eyebrow">'+esc(y[0])+'</p><p class="small">'+esc(y[1])+'</p></div>').join('')+'<div class="card rose"><h3>Stop and call the OB if</h3><ul class="small">'+STOP.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div></div><div class="links" style="margin-top:1rem"><a href="https://www.acog.org/womens-health/faqs/exercise-during-pregnancy" target="_blank" rel="noopener">ACOG: exercise during pregnancy</a></div>';
+ }else{
+  h='<h2>Knowledge sessions</h2><p class="small">One topic a week, ordered by when each becomes useful.</p><div class="stack" style="margin-top:1rem">'+LEARN.map(l=>'<div class="card"><h3>'+esc(l[0])+'</h3><p class="small">'+esc(l[1])+'</p></div>').join('')+'</div><div class="tablewrap card" style="margin-top:1rem"><h3>Baby size by week</h3><table><thead><tr><th>Week</th><th>Size</th><th>Note</th></tr></thead><tbody>'+SIZES.map(z=>'<tr'+(z[0]===s[0]?' class="cur"':'')+'><td>'+z[0]+'</td><td>'+esc(z[1])+' \u00b7 '+esc(z[2])+'</td><td>'+esc(z[3])+'</td></tr>').join('')+'</tbody></table></div>';
+ }
+ document.getElementById('view').innerHTML=h;
+ document.querySelectorAll('input[data-k]').forEach(c=>c.onchange=()=>{const d=checks();d[c.dataset.k]=c.checked;store.set('gs_done_'+new Date().toDateString(),JSON.stringify(d));render()});
+}
+function tabs(){const n=document.getElementById('tabs');n.innerHTML=TABS.map(t=>'<button role="tab" aria-selected="'+(t[0]===tab)+'" data-t="'+t[0]+'">'+t[1]+'</button>').join('');n.querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;store.set('gs_tab',tab);tabs();render()})}
+const di=document.getElementById('due');di.value=due;di.onchange=()=>{if(di.value){due=di.value;store.set('gs_due',due);hero();render()}};
+document.getElementById('theme').onclick=()=>{const r=document.documentElement,dk=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme: dark)').matches);r.dataset.theme=dk?'light':'dark'};
+hero();tabs();render();
+</script>
+</body>
+</html>
